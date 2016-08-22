@@ -1,4 +1,3 @@
-
 FCMStream
 ============
 FCMStream is app server to send or receive messages from Firebase Cloud Messaging (FCM) using XMPP Protocol.
