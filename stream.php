@@ -277,7 +277,7 @@ function send($full_json_message) {
   }
 
 	private function isHeaderMatch($subject) {
-	if (preg_match("/<message to=\".*.\" from=\".*.\" type=\".*.\">/", $subject)) {
+	if (preg_match("/<message to=\".*.\" from=\".*.\" type=\".*.\">/", $subject) || preg_match("/<message>/", $subject)) {
 		return true;
 	} else {
 		return false;
