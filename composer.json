@@ -1,0 +1,27 @@
+{
+  "name": "FCM UPSTREAM XMPP",
+  "description": "PHP framework allowing XMPP connection with Firebase Cloud Messaging",
+  "version": "0.2.1",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Irvan Kurniawan",
+      "homepage": "https://github.com/sourc7",
+      "role": "Developer"
+    },
+    {
+      "name": "Baudev",
+      "email": "baudev.contact@gmail.com",
+      "homepage": "https://github.com/baudev",
+      "role": "Developer"
+    }
+  ],
+  "config": {
+    "optimize-autoloader": true
+  },
+  "autoload": {
+    "psr-4": {
+      "FCM-UPSTREAM-XMPP\\": "src/"
+    }
+  }
+}
