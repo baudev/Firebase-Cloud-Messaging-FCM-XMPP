@@ -16,12 +16,15 @@
       "role": "Developer"
     }
   ],
+  "require": {
+    "php": ">=7.1"
+  },
   "config": {
     "optimize-autoloader": true
   },
   "autoload": {
     "psr-4": {
-      "FCM-UPSTREAM-XMPP\\": "src/"
+      "FCMStream\\": "src/"
     }
   }
 }
