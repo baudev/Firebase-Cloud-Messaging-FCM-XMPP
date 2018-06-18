@@ -42,10 +42,10 @@ class Actions
         }
         Logs::writeLog(Logs::DEBUG, "Message ID: " . $message->getMessageId());
         if (!empty($message->getData())) {
-            Logs::writeLog(Logs::DEBUG, "Content: " . $message->getData());
+            Logs::writeLog(Logs::DEBUG, "Content: " . json_encode($message->getData()));
         }
         if (!empty($message->getNotification())) {
-            Logs::writeLog(Logs::DEBUG, "Content: " . $message->getNotification());
+            Logs::writeLog(Logs::DEBUG, "Content: " . json_encode($message->getNotification()));
         }
     }
 
