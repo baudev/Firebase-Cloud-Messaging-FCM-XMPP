@@ -33,14 +33,14 @@ interface FCMListeners
 
     /**
      * When something failed
-     * @param string $error
-     * @param string $errorDescription
-     * @param string $from
-     * @param string $messageId
+     * @param null|string $error
+     * @param null|string $errorDescription
+     * @param null|string $from
+     * @param null|string $messageId
      * @param Actions $actions
      * @return mixed
      */
-    public function onFail(string $error, string $errorDescription, string $from, string $messageId, Actions $actions);
+    public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions);
 
     /**
      * When the GCM ID of the recipient has expired

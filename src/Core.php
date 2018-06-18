@@ -6,6 +6,7 @@
 
 namespace FCMStream;
 
+use Exception;
 use FCMStream\exceptions\FCMConnectionException;
 use FCMStream\helpers\Configuration;
 use FCMStream\helpers\DatetimeISO8601;
@@ -24,7 +25,7 @@ abstract class Core implements FCMListeners
 
     abstract public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
 
-    abstract public function onFail(string $error, string $errorDescription, string $from, string $messageId, Actions $actions);
+    abstract public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions);
 
     abstract public function onExpire(string $from, string $newFCMId, Actions $actions);
 
@@ -195,9 +196,9 @@ abstract class Core implements FCMListeners
                         if ($node->localName == 'message') {
                             if ($node->getAttribute('type') == 'error') {
                                 foreach ($node->childNodes as $subnode) {
-                                    // TODO Stanza Error
                                     if ($subnode->localName == 'error') {
                                         Logs::writeLog(Logs::WARN, "ERROR " . $subnode->textContent);
+                                        $this->onFail($subnode->textContent, null, null, null, new Actions($this));
                                     }
                                 }
 
@@ -284,7 +285,7 @@ abstract class Core implements FCMListeners
      */
     public function write($socket, $xml)
     {
-        $length = fwrite($socket, $xml . "\n") or $this->retryConnect();
+        $length = fwrite($socket, $xml . "\n") or $this->retryConnect();;
         Logs::writeLog(Logs::DEBUG, is_numeric($length) ? "Sent $length bytes" : "Failed sending", $xml);
         return $length;
     }

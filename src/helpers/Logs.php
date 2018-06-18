@@ -25,7 +25,8 @@ class Logs
     public static function writeLog(int $level, string $title, string $content = '')
     {
         if (Configuration::getDebugFile() && $level <= Configuration::getDebugLevel()) {
-            echo "=== $title === " . new DatetimeISO8601() . " ===\n" . strlen(trim($content)) ? trim($content) . "\n" : "";
+            echo "=== $title === " . new DatetimeISO8601() . " ===\n";
+            echo strlen(trim($content)) ? trim($content) . "\n" : "";
             fwrite(Configuration::getDebugFile(), "=== $title === " . new DatetimeISO8601() . " ===\n" . (strlen(trim($content)) ? trim($content) . "\n" : ""));
         }
     }

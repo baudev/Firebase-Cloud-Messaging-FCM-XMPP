@@ -42,7 +42,7 @@ class Functions
 
     public static function isHeaderMatch($subject)
     {
-        if (preg_match("/<message to=\".*.\" from=\".*.\" type=\".*.\">/", $subject) || preg_match("/<message>/", $subject)) {
+        if (preg_match("/<message to=\".*.\" from=\".*.\" type=\".*.\">/", $subject) || preg_match("/<message type=\".*.\" to=\".*.\">/", $subject) || preg_match("/<message>/", $subject)) {
             return true;
         } else {
             return false;
