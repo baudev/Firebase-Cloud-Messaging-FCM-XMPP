@@ -20,11 +20,12 @@ class Callbacks extends Core
      * Call the callback function
      * @param string $from
      * @param string $messageId
+     * @param Actions $actions
      * @return mixed
      */
-    public function onSend(string $from, string $messageId)
+    public function onSend(string $from, string $messageId, Actions $actions)
     {
-        return @call_user_func($this->onSend, $from, $messageId);
+        return @call_user_func($this->onSend, $from, $messageId, $actions);
     }
 
     /**
@@ -43,11 +44,12 @@ class Callbacks extends Core
      * @param string $from
      * @param string $messageId
      * @param string $packageName
+     * @param Actions $actions
      * @return mixed
      */
-    public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName)
+    public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions)
     {
-        return @call_user_func($this->onReceiveMessage, $data, $timeToLive, $from, $messageId, $packageName);
+        return @call_user_func($this->onReceiveMessage, $data, $timeToLive, $from, $messageId, $packageName, $actions);
     }
 
     /**
@@ -62,12 +64,15 @@ class Callbacks extends Core
     /**
      * Call the callback function
      * @param string $error
+     * @param string $errorDescription
      * @param string $from
+     * @param string $messageId
+     * @param Actions $actions
      * @return mixed
      */
-    public function onFail(string $error, string $from)
+    public function onFail(string $error, string $errorDescription, string $from, string $messageId, Actions $actions)
     {
-        return @call_user_func($this->onFail, $error, $from);
+        return @call_user_func($this->onFail, $error, $errorDescription, $from, $messageId, $actions);
     }
 
     /**
@@ -83,11 +88,12 @@ class Callbacks extends Core
      * Call the callback function
      * @param string $from
      * @param string $newFCMId
+     * @param Actions $actions
      * @return mixed
      */
-    public function onExpire(string $from, string $newFCMId)
+    public function onExpire(string $from, string $newFCMId, Actions $actions)
     {
-        return @call_user_func($this->onExpire, $from, $newFCMId);
+        return @call_user_func($this->onExpire, $from, $newFCMId, $actions);
     }
 
     /**
