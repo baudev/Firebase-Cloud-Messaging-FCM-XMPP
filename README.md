@@ -1,4 +1,4 @@
-# FCM UPSTREAM XMPP - PHP
+# Firebase Cloud Messaging (FCM) XMPP - PHP
 This PHP program, based on the unmaintained [sourc7/FCMStream](https://github.com/sourc7/FCMStream) repository, allows receiving and sending messages with the XMPP Protocol using [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/).
 
 ### INSTALLATION
