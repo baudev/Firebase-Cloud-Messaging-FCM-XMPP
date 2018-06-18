@@ -1,7 +1,7 @@
 {
   "name": "FCM UPSTREAM XMPP",
   "description": "PHP framework allowing XMPP connection with Firebase Cloud Messaging",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "license": "MIT",
   "authors": [
     {
