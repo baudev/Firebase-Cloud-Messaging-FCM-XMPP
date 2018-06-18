@@ -6,15 +6,18 @@
 
 namespace FCMStream\interfaces;
 
+use FCMStream\Actions;
+
 interface FCMListeners
 {
     /**
      * When a message has been sent
      * @param string $from
      * @param string $messageId
+     * @param Actions $actions
      * @return mixed
      */
-    public function onSend(string $from, string $messageId);
+    public function onSend(string $from, string $messageId, Actions $actions);
 
     /**
      * When a message has been received
@@ -23,24 +26,29 @@ interface FCMListeners
      * @param string $from
      * @param string $messageId
      * @param string $packageName
+     * @param Actions $actions
      * @return mixed
      */
-    public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName);
+    public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
 
     /**
      * When something failed
      * @param string $error
+     * @param string $errorDescription
      * @param string $from
+     * @param string $messageId
+     * @param Actions $actions
      * @return mixed
      */
-    public function onFail(string $error, string $from);
+    public function onFail(string $error, string $errorDescription, string $from, string $messageId, Actions $actions);
 
     /**
      * When the GCM ID of the recipient has expired
      * @param string $from
      * @param string $newFCMId
+     * @param Actions $actions
      * @return mixed
      */
-    public function onExpire(string $from, string $newFCMId);
+    public function onExpire(string $from, string $newFCMId, Actions $actions);
 
 }
