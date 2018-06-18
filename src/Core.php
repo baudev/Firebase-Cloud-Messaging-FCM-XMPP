@@ -6,7 +6,6 @@
 
 namespace FCMStream;
 
-use Exception;
 use FCMStream\exceptions\FCMConnectionException;
 use FCMStream\helpers\Configuration;
 use FCMStream\helpers\DatetimeISO8601;

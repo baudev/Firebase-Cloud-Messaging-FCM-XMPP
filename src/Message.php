@@ -45,7 +45,7 @@ class Message implements \JsonSerializable
      * @param array|null $notification
      * @throws FCMMessageFormatException
      */
-    public function __construct(?string $to = null, ?string $condition = null, ?string $messageId = null, ?string $collapseKey = null, ?string $priority = self::PRIORITY_NORMAL, ?bool $contentAvailable = null, ?bool $mutableContent = null, int $timeToLive = 2419200, bool $deliveryReceiptRequested = false, bool $dryRun = false, ?array $data = null, ?array $notification = null)
+    public function __construct(?string $to = null, ?string $condition = null, ?string $messageId = null, ?string $collapseKey = null, string $priority = self::PRIORITY_NORMAL, ?bool $contentAvailable = null, ?bool $mutableContent = null, int $timeToLive = 2419200, bool $deliveryReceiptRequested = false, bool $dryRun = false, ?array $data = null, ?array $notification = null)
     {
         if (!empty($to)) {
             $this->setTo($to);
@@ -155,13 +155,13 @@ class Message implements \JsonSerializable
     /**
      * @return null|string
      */
-    public function getPriority(): ?string
+    public function getPriority(): string
     {
         return $this->priority;
     }
 
     /**
-     * @param null|string $priority
+     * @param string $priority
      * @throws FCMMessageFormatException
      */
     public function setPriority(string $priority): void
