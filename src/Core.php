@@ -6,6 +6,7 @@
 
 namespace FCMStream;
 
+use FCMStream\exceptions\FCMConnectionException;
 use FCMStream\helpers\Configuration;
 use FCMStream\helpers\DatetimeISO8601;
 use FCMStream\helpers\Functions;
@@ -15,20 +16,24 @@ use FCMStream\interfaces\FCMListeners;
 abstract class Core implements FCMListeners
 {
 
+    /*
+     *  ABSTRACT METHODS
+     */
+
+    abstract public function onSend(string $from, string $messageId, Actions $actions);
+
+    abstract public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
+
+    abstract public function onFail(string $error, string $errorDescription, string $from, string $messageId, Actions $actions);
+
+    abstract public function onExpire(string $from, string $newFCMId, Actions $actions);
+
+
     private $retryCount;
     private $remote;
 
     private $parsedMessage;
     private $isParsing = false;
-
-
-    abstract public function onSend(string $from, string $messageId);
-
-    abstract public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName);
-
-    abstract public function onFail(string $error, string $from);
-
-    abstract public function onExpire(string $from, string $newFCMId);
 
     /**
      * Callbacks constructor.
@@ -62,11 +67,13 @@ abstract class Core implements FCMListeners
         }
     }
 
+
+
     /**
      * Generate a GUID http://php.net/manual/fr/function.com-create-guid.php
      * @return string
      */
-    private function getGUID(){
+    protected function getGUID(){
         if (function_exists('com_create_guid')){
             return com_create_guid();
         }else{
@@ -85,8 +92,9 @@ abstract class Core implements FCMListeners
     /**
      * Initialize the connection with the FCM server via XMPP
      * @return bool
+     * @throws FCMConnectionException
      */
-    private function connectRemote()
+    protected function connectRemote() : bool
     {
         Logs::writeLog(Logs::DEBUG, "Connecting to " . Configuration::FCM_HOST . ":" . Configuration::getPort() . " at ". new DatetimeISO8601());
 
@@ -94,21 +102,21 @@ abstract class Core implements FCMListeners
         if (!($this->remote = stream_socket_client("tls://" . Configuration::FCM_HOST . ":" . Configuration::getPort(), $errno, $errstr, Configuration::getTimeoutConnection(), STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT))) {
             // something failed, we log it
             Logs::writeLog(Logs::WARN, "Failed to connect", "($errno) $errstr");
-            return false;
+            throw new FCMConnectionException("Error while establishing connection with FCM Server", FCMConnectionException::CONNECTION_FAILED);
         }
 
         // we request a connection to FCM
-        $this->write($this->remote,
+        $this->write($this->getRemote(),
             '<stream:stream to="gcm.googleapis.com" version="1.0" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams">');
 
         // we generate a GUID
         $unique_guid = $this->getGUID();
 
         // we wait for data http://php.net/manual/fr/function.stream-set-blocking.php
-        stream_set_blocking($this->remote, true);
+        stream_set_blocking($this->getRemote(), true);
 
         // while the connection is still alive
-        while (($xml = $this->read($this->remote)) !== false) {
+        while (($xml = $this->read($this->getRemote())) !== false) {
             // if there is xml received
             if ($xml) {
                 // we parse the XML
@@ -121,73 +129,44 @@ abstract class Core implements FCMListeners
                         if ($node->localName == 'features') {
                             foreach ($node->childNodes as $node) {
                                 if ($node->localName == 'mechanisms') {
-                                    $this->write($this->remote,
+                                    $this->write($this->getRemote(),
                                         '<auth mechanism="PLAIN" xmlns="urn:ietf:params:xml:ns:xmpp-sasl">' . base64_encode(chr(0) . Configuration::getSenderID() . '@gcm.googleapis.com' . chr(0) . Configuration::getApiKey()) . '</auth>');
                                 } elseif ($node->localName == 'bind') {
-                                    $this->write($this->remote,
+                                    $this->write($this->getRemote(),
                                         '<iq to="' . Configuration::FCM_HOST . '" type="set" id="' . $unique_guid . "-1" . '"><bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><resource>test</resource></bind></iq>');
                                 } elseif ($node->localName == 'session') {
-                                    $this->write($this->remote,
+                                    $this->write($this->getRemote(),
                                         '<iq to="' . Configuration::FCM_HOST . '" type="set" id="' . $unique_guid . "-2" . '"><session xmlns="urn:ietf:params:xml:ns:xmpp-session"/></iq>');
                                 }
                             }
 
                         } elseif ($node->localName == 'success') {
-                            $this->write($this->remote,
+                            $this->write($this->getRemote(),
                                 '<stream:stream to="' . Configuration::FCM_HOST . '" version="1.0" xmlns="jabber:client" xmlns:stream="http://etherx.jabber.org/streams">');
                         } elseif ($node->localName == 'failure') {
                             break;
                         } elseif ($node->localName == 'iq' && $node->getAttribute('type') == 'result') {
                             if ($node->getAttribute('id') == $unique_guid . "-1") {
+                                // everything is ok, we start listening
                                 return true;
                             }
                         }
                     }
 
                 } else {
-                    Logs::writeLog(Logs::DEBUG, "Unparseable", $xml);
+                    Logs::writeLog(Logs::DEBUG, "XML unparseable while establishing connection", $xml);
                 }
             }
         }
-
-        // we close the connection
-        fclose($this->remote);
-        $this->remote = null;
-        return false;
-    }
-
-    /**
-     * Return if the server is connected to the FCM one
-     * @return bool
-     */
-    private function isRemoteConnected()
-    {
-        return ($this->remote && !feof($this->remote));
-    }
-
-    /**
-     * Close the connection with the FCM server
-     */
-    public function closeRemote()
-    {
-        if ($this->remote) {
-            Logs::writeLog(Logs::WARN, "Closing connection");
-            $this->write($this->remote, Functions::getClosing());
-            fclose($this->remote);
-        }
-        $this->remote = null;
-    }
-
-    /**
-     * Exit the script
-     */
-    private function exit() {
-        Logs::writeLog(Logs::WARN, "Exiting stream() function.");
-        exit();
+        // the connection is no more alive
+        fclose($this->getRemote());
+        $this->setRemote(null);
+        throw new FCMConnectionException("Connection is no more alive. ", FCMConnectionException::CONNECTION_NO_MORE_ALIVE);
     }
 
     /**
      * Start streaming
+     * @throws FCMConnectionException
      */
     public function stream()
     {
@@ -200,13 +179,13 @@ abstract class Core implements FCMListeners
         // if the server is connected, we start analyzing what is sent
         if ($this->isRemoteConnected()) {
             // has the connection is established, we put the retry counter to 0
-            $this->retryConnect = 0;
+            $this->setRetryCount( 0);
             Logs::writeLog(Logs::DEBUG, "Streaming FCM Cloud Connection Server...");
 
             // TODO put this timeout in Configuration class
-            stream_set_timeout($this->remote, 150);
+            stream_set_timeout($this->getRemote(), 150);
             // we set an infinite loop
-            while (($packetData = $this->read($this->remote)) !== 1) {
+            while (($packetData = $this->read($this->getRemote())) !== 1) {
                 // make sure that the XML received is well formatted
                 $validXML = $this->analyzeData($packetData);
                 // we parse it
@@ -216,6 +195,7 @@ abstract class Core implements FCMListeners
                         if ($node->localName == 'message') {
                             if ($node->getAttribute('type') == 'error') {
                                 foreach ($node->childNodes as $subnode) {
+                                    // TODO Stanza Error
                                     if ($subnode->localName == 'error') {
                                         Logs::writeLog(Logs::WARN, "ERROR " . $subnode->textContent);
                                     }
@@ -225,34 +205,35 @@ abstract class Core implements FCMListeners
                                 && ($json = $node->firstChild->textContent)
                                 && ($data = json_decode($json)) && @$data->message_type && @$data->message_id) {
                                 if ($data->message_type == 'ack') {
+                                    // the recipient has acknowledge the message
                                     Logs::writeLog(Logs::DEBUG, "ACK message #$data->message_id");
-                                    $this->onSend($data->from, $data->message_id);
+                                    $this->onSend($data->from, $data->message_id, new Actions($this));
                                 } elseif ($data->message_type == 'nack') {
+                                    // error case
                                     Logs::writeLog(Logs::WARN, "$data->error ($data->error_description) $data->from");
-                                    // TODO handle errors
                                     if ($data->error == 'BAD_REGISTRATION' || $data->error == 'DEVICE_UNREGISTERED') {
-                                        // TODO add fields such as message_id
-                                        $this->onExpire($data->from, null);
+                                        $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
                                     } else {
-                                        $this->onFail($data->error, $data->from);
+                                        $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
                                     }
 
                                 }
-                                // todo in documentation fcm says to have two connections no ?
                                 if ((Functions::isControlMessage($validXML) && $data->message_type == 'control') && ($data->control_type == 'CONNECTION_DRAINING')) {
+                                    // we re open a new connection because FCM as to close the current one
                                     Logs::writeLog(Logs::DEBUG, "FCM Server: CONNECTION_DRAINING");
                                     Logs::writeLog(Logs::DEBUG, "FCM Server need to restart the connection due to maintenance or high load.");
                                     $this->retryConnect();
                                 }
                                 if (@$data->registration_id) {
-                                    // todo check this case
+                                    // the FCM has expired, FCM return the new one
                                     Logs::writeLog(Logs::WARN, "CANONICAL ID $data->from -> $data->registration_id");
-                                    $this->onExpire($data->from, $data->registration_id);
+                                    $this->onExpire($data->from, $data->registration_id, new Actions($this));
                                 }
                             } elseif (($json = $node->firstChild->textContent) && ($mdata = json_decode($json)) && ($client_token = $mdata->from) && ($client_message = $mdata->data) && ($package_app = $mdata->category)) {
+                                // The server received a message. We acknowledge it.
                                 $client_message_id = $mdata->message_id;
                                 $this->sendACK($client_token, $client_message_id);
-                                $this->onReceiveMessage($mdata->data, $mdata->time_to_live, $mdata->from, $client_message_id, $mdata->category);
+                                $this->onReceiveMessage($mdata->data, $mdata->time_to_live, $mdata->from, $client_message_id, $mdata->category, new Actions($this));
                             }
                         }
                     }
@@ -261,8 +242,46 @@ abstract class Core implements FCMListeners
         }
     }
 
-// Auxiliary functions
 
+
+    /**
+     * Return if the server is connected to the FCM one
+     * @return bool
+     */
+    protected function isRemoteConnected()
+    {
+        return ($this->getRemote() && !feof($this->getRemote()));
+    }
+
+    /**
+     * Close the connection with the FCM server
+     * @throws FCMConnectionException
+     */
+    protected function closeRemote()
+    {
+        if ($this->getRemote()) {
+            Logs::writeLog(Logs::WARN, "Closing connection");
+            $this->write($this->getRemote(), Functions::getClosing());
+            fclose($this->getRemote());
+        }
+        $this->setRemote( null);
+    }
+
+    /**
+     * Exit the script
+     */
+    protected function exit() {
+        Logs::writeLog(Logs::WARN, "Exiting stream() function.");
+        exit();
+    }
+
+    /**
+     * Send content
+     * @param $socket
+     * @param $xml
+     * @return bool|int
+     * @throws FCMConnectionException
+     */
     public function write($socket, $xml)
     {
         $length = fwrite($socket, $xml . "\n") or $this->retryConnect();
@@ -270,8 +289,8 @@ abstract class Core implements FCMListeners
         return $length;
     }
 
-    // todo see what is meta data
-    private function read($socket)
+
+    protected function read($socket)
     {
         $response  = fread($socket, 1387);
         $meta_data = stream_get_meta_data($socket);
@@ -279,8 +298,17 @@ abstract class Core implements FCMListeners
         Logs::writeLog(Logs::DEBUG, $response === false ? "Failed reading" : "Read $length", $response);
         return (is_string($response) ? trim($response) : $response);
     }
+
+
+
     // todo move this function to another class and pass the object reference $this in order to edit parsedMessage and isParssing
-    private function analyzeData($packetData)
+
+    /**
+     * @param $packetData
+     * @return string
+     * @throws FCMConnectionException
+     */
+    protected function analyzeData($packetData)
     {
         if (Functions::isValidStanza($packetData)) {
             Logs::writeLog(Logs::DEBUG, "Message is not fragmented. \n");
@@ -315,60 +343,49 @@ abstract class Core implements FCMListeners
         if (Functions::isXMLStreamError($packetData)) {
             Logs::writeLog(Logs::DEBUG, "Stream Error: Invalid XML. \n");
             Logs::writeLog(Logs::DEBUG, "FCM Server is failed to parse the XML payload. \n");
+            // TODO log xml content
+            // todo throw an error and reopen connection ?
             $this->exit();
         }
 
     }
 
-    private function sendACK($registration_id, $message_id)
+    /**
+     * @param $registration_id
+     * @param $message_id
+     * @throws FCMConnectionException
+     */
+    protected function sendACK($registration_id, $message_id)
     {
         $this->write($this->remote, '<message id=""><gcm xmlns="google:mobile:data">{"to":"' . $registration_id . '","message_id":' . json_encode(htmlspecialchars($message_id, ENT_NOQUOTES), JSON_UNESCAPED_UNICODE) . ',"message_type":"ack"}</gcm></message>');
     }
 
-    public function sendBack($registration_id, $client_message, $client_message_id)
-    {
-        Logs::writeLog(Logs::DEBUG, "Sending message: " . $client_message);
-        Logs::writeLog(Logs::DEBUG, "Message ID: " . $client_message_id);
-        // TODO remove body in json
-        // TODO add priority choice
-        $this->write($this->remote, '<message><gcm xmlns="google:mobile:data">
-{
-    "to":"' . $registration_id . '",
-    "data":{"body":' . json_encode(htmlspecialchars($client_message, ENT_NOQUOTES), JSON_UNESCAPED_UNICODE) . '},
-    "message_id":' . json_encode(htmlspecialchars($client_message_id . "-N", ENT_NOQUOTES), JSON_UNESCAPED_UNICODE) . '
-}
-</gcm></message>');
-    }
-
-    private function send($full_json_message)
-    {
-        $this->write($this->remote, $full_json_message);
-    }
 
     /**
      * Try to reconnect the XMPP Server
+     * @throws FCMConnectionException
      */
-    private function retryConnect()
+    protected function retryConnect()
     {
-        $this->retryCount++;
+        $this->setRetryCount($this->getRetryCount() + 1);
 
         // if after max authorized attempts the connection still doesn't work, we stop the script
         if ($this->retryCount == Configuration::getRetryMaxAttempts()) {
-            echo "Retry attempt has exceeded (10) . \n";
+            echo "Retry attempt has exceeded. \n";
             echo "Failed to retry connect to the remote server. \n";
-            exit();
+            throw new FCMConnectionException("Max retry connect attempts exceeded.", FCMConnectionException::CONNECTION_MAX_RETRY_ATTEMPTS_EXCEEDED);
         }
 
         // we waits some seconds before reconnection
-        echo "Reconnecting to the FCM Server in ".Configuration::getSleepSecondsBeforeReconnection()." seconds. \n";
+        Logs::writeLog(Logs::WARN, "Reconnecting to the FCM Server in ".Configuration::getSleepSecondsBeforeReconnection()." seconds. ", "");
         sleep(Configuration::getSleepSecondsBeforeReconnection());
         $this->stream();
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    private function getRetryCount() : int
+    protected function getRetryCount() : ?int
     {
         return $this->retryCount;
     }
@@ -376,7 +393,7 @@ abstract class Core implements FCMListeners
     /**
      * @param int $retryCount
      */
-    private function setRetryCount(int $retryCount): void
+    protected function setRetryCount(int $retryCount): void
     {
         $this->retryCount = $retryCount;
     }
@@ -392,9 +409,11 @@ abstract class Core implements FCMListeners
     /**
      * @param mixed $remote
      */
-    private function setRemote($remote): void
+    protected function setRemote($remote): void
     {
         $this->remote = $remote;
     }
+
+
 
 }
