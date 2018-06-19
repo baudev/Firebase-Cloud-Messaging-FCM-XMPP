@@ -1,5 +1,11 @@
 
 # Firebase Cloud Messaging (FCM) XMPP - PHP  
+
+[![STABLE VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/master/composer.json&label=stable&query=$.version&colorB=1976d2)]()
+[![UNSTABLE VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/dev/composer.json&label=unstable&query=$.version&colorB=dc8623)]()
+[![PHP MINIMUM VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/dev/composer.json&label=PHP&query=$.require.php)]()
+![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg)
+
 This PHP program, based on the unmaintained [sourc7/FCMStream](https://github.com/sourc7/FCMStream) repository, allows receiving and sending messages with the XMPP Protocol using [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/).  
   
 ## INSTALLATION  
@@ -167,7 +173,7 @@ Send the message passed as parameter.
 
 Class designed to format a message as JSON.
 
-#### `new FCMStream\Message(?string $to = null, ?string $condition = null, ?string $messageId = null, ?string $collapseKey = null, ?string $priority = self::PRIORITY_NORMAL, ?bool $contentAvailable = null, ?bool $mutableContent = null, int $timeToLive = 2419200, bool $deliveryReceiptRequested = false, bool $dryRun = false, ?array $data = null, ?array $notification = null)`
+#### `new FCMStream\Message([$to], [$condition], [$messageId], [$collapseKey], [$priority], [$contentAvailable], [$mutableContent], [$timeToLive], [$deliveryReceiptRequested], [$dryRun], [$data], [$notification])`
 
 - `$to` - *(optional)* null|string: This parameter specifies the recipient of a message.
 The value can be a device's registration token, a device group's notification key, or a single topic (prefixed with  `/topics/`). To send to multiple topics, use the  `condition`  parameter.
@@ -182,6 +188,8 @@ The value can be a device's registration token, a device group's notification ke
 - `$dryRun` - *(optional)* boolean: This parameter, when set to `true`, allows developers to test a request without actually sending a message. Default: `false`.
 - `$data` - *(optional)* null|array: This parameter specifies the key-value pairs of the message's payload. Default: `null`.
 - `$notification` -  *(optional)* null|array: This parameter specifies the predefined, user-visible key-value pairs of the notification payload. This parameter is not fully supported yet. Default: `null`. 
+
+For each parameter, `getters` and `setters` are provided.
 
 ### TODO  
   
