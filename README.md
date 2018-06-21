@@ -9,7 +9,13 @@
 This PHP program, based on the unmaintained [sourc7/FCMStream](https://github.com/sourc7/FCMStream) repository, allows receiving and sending messages with the XMPP Protocol using [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/).  
   
 ## INSTALLATION  
-  
+
+With composer:
+```
+composer require baudev/fcm-xmpp  
+```
+
+Without composer:
 ```  
 git clone https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP.git
 cd Firebase-Cloud-Messaging-FCM-XMPP/
