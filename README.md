@@ -1,8 +1,8 @@
 
 # Firebase Cloud Messaging (FCM) XMPP - PHP  
 
-[![STABLE VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/master/composer.json&label=stable&query=$.version&colorB=1976d2)]()
-[![UNSTABLE VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/dev/composer.json&label=unstable&query=$.version&colorB=dc8623)]()
+
+[![GitHub release](https://img.shields.io/github/release/baudev/Firebase-Cloud-Messaging-FCM-XMPP.svg)](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/releases/tag/v1.0.0)
 [![PHP MINIMUM VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/dev/composer.json&label=PHP&query=$.require.php)]()
 ![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg)
 
