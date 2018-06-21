@@ -310,24 +310,26 @@ abstract class Core implements FCMListeners
      */
     protected function analyzeData($packetData)
     {
+        // check validity of the XML
         if (Functions::isValidStanza($packetData)) {
-            Logs::writeLog(Logs::DEBUG, "Message is not fragmented. \n");
+            Logs::writeLog(Logs::DEBUG, "Message is not fragmented.");
             return $packetData;
         }
 
+        // if XML is empty, then it's a message to keep alive the exchange
         if ($packetData == "") {
-            Logs::writeLog(Logs::DEBUG, "Keepalive exchange \n");
+            Logs::writeLog(Logs::DEBUG, "Keepalive exchange");
             $this->write($this->remote, " ");
         } elseif (Functions::isInvalidStanza($packetData)) {
-            Logs::writeLog(Logs::DEBUG, "Message doesn't have valid XMPP header and footer. \n");
+            Logs::writeLog(Logs::DEBUG, "Message doesn't have valid XMPP header and footer.");
         }
 
         if (Functions::isFooterMissing($packetData)) {
-            Logs::writeLog(Logs::DEBUG, "Message is fragmented. \n");
+            Logs::writeLog(Logs::DEBUG, "Message is fragmented because footer is missing.");
             $this->parsedMessage = null;
             $this->isParsing     = true;
 
-            Logs::writeLog(Logs::DEBUG, "Parsing message.. \n");
+            Logs::writeLog(Logs::DEBUG, "Parsing message..");
             $this->parsedMessage .= $packetData;
 
         } elseif ($this->isParsing) {
@@ -335,15 +337,14 @@ abstract class Core implements FCMListeners
         }
 
         if ($this->isParsing && Functions::isFooterMatch($packetData)) {
-            Logs::writeLog(Logs::DEBUG, "Message parsed succesfully. \n");
+            Logs::writeLog(Logs::DEBUG, "Message parsed succesfully.");
             $this->isParsing = false;
             return $this->parsedMessage;
         }
 
         if (Functions::isXMLStreamError($packetData)) {
-            Logs::writeLog(Logs::DEBUG, "Stream Error: Invalid XML. \n");
-            Logs::writeLog(Logs::DEBUG, "FCM Server is failed to parse the XML payload. \n");
-            // TODO log xml content
+            Logs::writeLog(Logs::DEBUG, "Stream Error: Invalid XML.");
+            Logs::writeLog(Logs::DEBUG, "FCM Server is failed to parse the XML payload.");
             // todo throw an error and reopen connection ?
             $this->exit();
         }
