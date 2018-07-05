@@ -102,7 +102,7 @@ $test->stream();
 
 ## DOCUMENTATION
 
-See the [wiki page](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki) to discover every possibilities provided by this framework.
+See the [wiki page](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki/Documentation) to discover every possibilities provided by this framework.
 
 ### TODO  
   
