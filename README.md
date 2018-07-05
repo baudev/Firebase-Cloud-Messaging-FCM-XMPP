@@ -10,12 +10,12 @@ This PHP program, based on the unmaintained [sourc7/FCMStream](https://github.co
   
 ## INSTALLATION  
 
-With composer:
+With Packagist:
 ```
 composer require baudev/fcm-xmpp  
 ```
 
-Without composer:
+Without Packagist:
 ```  
 git clone https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP.git
 cd Firebase-Cloud-Messaging-FCM-XMPP/
