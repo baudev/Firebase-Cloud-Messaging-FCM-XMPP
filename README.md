@@ -44,7 +44,7 @@ class YOURCLASSNAME extends \FCMStream\Core {
 		$actions->sendMessage($message);
 	}  
 
-	public function onFail(string $error, string $errorDescription, string $from, string $messageId, Actions $actions) { 
+	public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions) { 
 		// TODO: Implement onFail() method. 
 	}  
 	 public function onExpire(string $from, string $newFCMId, Actions $actions) { 
@@ -79,7 +79,7 @@ $test->setOnReceiveMessage(function ($data, int $timeToLive, string $from, strin
 });
   
 // onFail callback  
-$test->setOnFail(function (string $error, string $errorDescription, string $from, string $messageId, Actions $actions){ 
+$test->setOnFail(function (?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions){ 
 	// TODO: Implement onFail() method. 
   });  
   
