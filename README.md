@@ -1,10 +1,10 @@
 
 # Firebase Cloud Messaging (FCM) XMPP - PHP  
 
-
-[![GitHub release](https://img.shields.io/github/release/baudev/Firebase-Cloud-Messaging-FCM-XMPP.svg)](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/releases/tag/v1.0.0)
-[![PHP MINIMUM VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/dev/composer.json&label=PHP&query=$.require.php)]()
-![LICENSE](https://img.shields.io/github/license/mashape/apistatus.svg)
+| Service | Master | Develop
+|:--:|:--:|:--:
+| CI Status | [![Build Status](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP.svg?branch=master)](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP) | [![Build Status](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP.svg?branch=dev)](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP)
+| Version |  [![Master version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/master/composer.json&label=v&query=$.version&color=green)]() | [![Develop version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/dev/composer.json&label=v&query=$.version&color=orange)]()
 
 This PHP program, based on the unmaintained [sourc7/FCMStream](https://github.com/sourc7/FCMStream) repository, allows receiving and sending messages with the XMPP Protocol using [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/).  
   
@@ -15,17 +15,11 @@ With composer:
 composer require baudev/fcm-xmpp  
 ```
 
-Without composer:
-```  
-git clone https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP.git
-cd Firebase-Cloud-Messaging-FCM-XMPP/
-composer install  
-```  
-
 ## EXAMPLE  
 - Create an `index.php` file and write into it one of the two following script (method you prefer). Don't forget replacing :  `SENDER_ID`, `SERVER KEY`.
 - Run the script: `php index.php`
-1. Using a class (**best solution**):   
+
+### 1. Using a class (**best solution**):   
 ```php  
 class YOURCLASSNAME extends \FCMStream\Core {  
   
@@ -56,7 +50,7 @@ $test = new YOURCLASSNAME('SENDER_ID', 'SERVER KEY', 'debugfile.txt', \FCMStream
 $test->stream();  
 ```
 
-2. Using function callback parameters:
+### 2. Using function callback parameters:
 
 ```php  
 $test = new FCMStream\Callbacks('SENDER_ID', 'SERVER KEY', 'debugfile.txt', \FCMStream\helpers\Logs::ANY);  
