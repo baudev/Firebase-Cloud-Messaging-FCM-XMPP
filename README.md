@@ -16,8 +16,10 @@ composer require baudev/fcm-xmpp
 ```
 
 ## EXAMPLE  
-- Create an `index.php` file and write into it one of the two following script (method you prefer). Don't forget replacing :  `SENDER_ID`, `SERVER KEY`.
+- Create an `index.php` file and write into it one of the two following script ([method1](#1-using-a-class-best-solution) or [method2](#2-using-function-callback-parameters)). Don't forget replacing :  `SENDER_ID`, `SERVER KEY`.
 - Run the script: `php index.php`
+
+*Note: examples are provided in the directory `examples`.*
 
 ### 1. Using a class (**best solution**):   
 ```php  
@@ -38,7 +40,7 @@ class YOURCLASSNAME extends \FCMStream\Core {
 		$actions->sendMessage($message);
 	}  
 
-	public function onFail(string $error, string $errorDescription, string $from, string $messageId, Actions $actions) { 
+	public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions) { 
 		// TODO: Implement onFail() method. 
 	}  
 	 public function onExpire(string $from, string $newFCMId, Actions $actions) { 
@@ -73,7 +75,7 @@ $test->setOnReceiveMessage(function ($data, int $timeToLive, string $from, strin
 });
   
 // onFail callback  
-$test->setOnFail(function (string $error, string $errorDescription, string $from, string $messageId, Actions $actions){ 
+$test->setOnFail(function (?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions) { 
 	// TODO: Implement onFail() method. 
   });  
   
@@ -103,7 +105,6 @@ See the [wiki page](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/
 - [ ] Add more comments
 - [X] Add methods for responding easily, to set message priority and so on. *Notification property is not handled yet*  
 - [X] Improve README  
-- [ ] Support lower PHP version ?   
   
 ### CREDITS  
   
