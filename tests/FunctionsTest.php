@@ -62,9 +62,9 @@ class FunctionsTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(\FCMStream\helpers\Functions::isValidStanza($message));
     }
 
-    public function testIsFooterMissing(){
+    public function testIsOnlyFooterIsMissing(){
         $message = '<message to="xxxxxxxxxxxx@gcm.googleapis.com" from="devices@gcm.googleapis.com" type="normal"><gcm xmlns="google:mobile:data"></gcm>';
-        $this->assertTrue(\FCMStream\helpers\Functions::isFooterMissing($message));
+        $this->assertTrue(\FCMStream\helpers\Functions::isOnlyFooterIsMissing($message));
     }
 
 }
