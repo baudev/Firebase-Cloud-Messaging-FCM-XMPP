@@ -54,6 +54,7 @@ class FunctionsTest extends \PHPUnit\Framework\TestCase
         \FCMStream\helpers\Functions::parseXML('<iq type="set"><bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"></bind></iq>');
         \FCMStream\helpers\Functions::parseXML('<iq type="result"><bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><jid>SENDER_ID@gcm.googleapis.com/RESOURCE</jid></bind></iq>');
         $this->assertNotNull(\FCMStream\helpers\Functions::getClosing());
+        $this->assertNotNull(\FCMStream\helpers\Functions::getOpening());
     }
 
 }
