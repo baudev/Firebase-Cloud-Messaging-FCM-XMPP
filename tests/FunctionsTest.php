@@ -57,4 +57,14 @@ class FunctionsTest extends \PHPUnit\Framework\TestCase
         $this->assertNotNull(\FCMStream\helpers\Functions::getOpening());
     }
 
+    public function testIsValidStanza(){
+        $message = '<message to="xxxxxxxxxxxx@gcm.googleapis.com" from="devices@gcm.googleapis.com" type="normal"><gcm xmlns="google:mobile:data"></gcm></message>';
+        $this->assertTrue(\FCMStream\helpers\Functions::isValidStanza($message));
+    }
+
+    public function testIsFooterMissing(){
+        $message = '<message to="xxxxxxxxxxxx@gcm.googleapis.com" from="devices@gcm.googleapis.com" type="normal"><gcm xmlns="google:mobile:data"></gcm>';
+        $this->assertTrue(\FCMStream\helpers\Functions::isFooterMissing($message));
+    }
+
 }
