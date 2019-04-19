@@ -179,61 +179,66 @@ abstract class Core implements FCMListeners
         // if the server is connected, we start analyzing what is sent
         if ($this->isRemoteConnected()) {
             // has the connection is established, we put the retry counter to 0
-            $this->setRetryCount( 0);
+            $this->setRetryCount(0);
             Logs::writeLog(Logs::DEBUG, "Streaming FCM Cloud Connection Server...");
 
             // TODO put this timeout in Configuration class
             stream_set_timeout($this->getRemote(), 150);
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {
-                // make sure that the XML received is well formatted
-                $validXML = $this->analyzeData($packetData);
-                // we parse it
-                if ($validXML && ($root = Functions::parseXML($validXML))) {
-                    // for each node
-                    foreach ($root->childNodes as $node) {
-                        if ($node->localName == 'message') {
-                            if ($node->getAttribute('type') == 'error') {
-                                foreach ($node->childNodes as $subnode) {
-                                    if ($subnode->localName == 'error') {
-                                        Logs::writeLog(Logs::WARN, "ERROR " . $subnode->textContent);
-                                        $this->onFail($subnode->textContent, null, null, null, new Actions($this));
-                                    }
-                                }
 
-                            } elseif ($node->firstChild->localName == 'gcm'
-                                && ($json = $node->firstChild->textContent)
-                                && ($data = json_decode($json)) && @$data->message_type && @$data->message_id) {
-                                if ($data->message_type == 'ack') {
-                                    // the recipient has acknowledge the message
-                                    Logs::writeLog(Logs::DEBUG, "ACK message #$data->message_id");
-                                    $this->onSend($data->from, $data->message_id, new Actions($this));
-                                } elseif ($data->message_type == 'nack') {
-                                    // error case
-                                    Logs::writeLog(Logs::WARN, "$data->error ($data->error_description) $data->from");
-                                    if ($data->error == 'BAD_REGISTRATION' || $data->error == 'DEVICE_UNREGISTERED') {
-                                        $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
-                                    } else {
-                                        $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
+                // we explode the packet after each footer node
+                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, -1, PREG_SPLIT_NO_EMPTY);
+                foreach ($packetArray as $packet) {
+                    // make sure that the XML received is well formatted
+                    $validXML = $this->analyzeData($packet);
+                    // we parse it
+                    if ($validXML && ($root = Functions::parseXML($validXML))) {
+                        // for each node
+                        foreach ($root->childNodes as $node) {
+                            if ($node->localName == 'message') {
+                                if ($node->getAttribute('type') == 'error') {
+                                    foreach ($node->childNodes as $subnode) {
+                                        if ($subnode->localName == 'error') {
+                                            Logs::writeLog(Logs::WARN, "ERROR " . $subnode->textContent);
+                                            $this->onFail($subnode->textContent, null, null, null, new Actions($this));
+                                        }
                                     }
 
+                                } elseif ($node->firstChild->localName == 'gcm'
+                                    && ($json = $node->firstChild->textContent)
+                                    && ($data = json_decode($json)) && @$data->message_type && @$data->message_id) {
+                                    if ($data->message_type == 'ack') {
+                                        // the recipient has acknowledge the message
+                                        Logs::writeLog(Logs::DEBUG, "ACK message #$data->message_id");
+                                        $this->onSend($data->from, $data->message_id, new Actions($this));
+                                    } elseif ($data->message_type == 'nack') {
+                                        // error case
+                                        Logs::writeLog(Logs::WARN, "$data->error ($data->error_description) $data->from");
+                                        if ($data->error == 'BAD_REGISTRATION' || $data->error == 'DEVICE_UNREGISTERED') {
+                                            $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
+                                        } else {
+                                            $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
+                                        }
+
+                                    }
+                                    if ((Functions::isControlMessage($validXML) && $data->message_type == 'control') && ($data->control_type == 'CONNECTION_DRAINING')) {
+                                        // we re open a new connection because FCM as to close the current one
+                                        Logs::writeLog(Logs::DEBUG, "FCM Server: CONNECTION_DRAINING");
+                                        Logs::writeLog(Logs::DEBUG, "FCM Server need to restart the connection due to maintenance or high load.");
+                                        $this->retryConnect();
+                                    }
+                                    if (@$data->registration_id) {
+                                        // the FCM has expired, FCM return the new one
+                                        Logs::writeLog(Logs::WARN, "CANONICAL ID $data->from -> $data->registration_id");
+                                        $this->onExpire($data->from, $data->registration_id, new Actions($this));
+                                    }
+                                } elseif (($json = $node->firstChild->textContent) && ($mdata = json_decode($json)) && ($client_token = $mdata->from) && ($client_message = $mdata->data) && ($package_app = $mdata->category)) {
+                                    // The server received a message. We acknowledge it.
+                                    $client_message_id = $mdata->message_id;
+                                    $this->sendACK($client_token, $client_message_id);
+                                    $this->onReceiveMessage($mdata->data, $mdata->time_to_live, $mdata->from, $client_message_id, $mdata->category, new Actions($this));
                                 }
-                                if ((Functions::isControlMessage($validXML) && $data->message_type == 'control') && ($data->control_type == 'CONNECTION_DRAINING')) {
-                                    // we re open a new connection because FCM as to close the current one
-                                    Logs::writeLog(Logs::DEBUG, "FCM Server: CONNECTION_DRAINING");
-                                    Logs::writeLog(Logs::DEBUG, "FCM Server need to restart the connection due to maintenance or high load.");
-                                    $this->retryConnect();
-                                }
-                                if (@$data->registration_id) {
-                                    // the FCM has expired, FCM return the new one
-                                    Logs::writeLog(Logs::WARN, "CANONICAL ID $data->from -> $data->registration_id");
-                                    $this->onExpire($data->from, $data->registration_id, new Actions($this));
-                                }
-                            } elseif (($json = $node->firstChild->textContent) && ($mdata = json_decode($json)) && ($client_token = $mdata->from) && ($client_message = $mdata->data) && ($package_app = $mdata->category)) {
-                                // The server received a message. We acknowledge it.
-                                $client_message_id = $mdata->message_id;
-                                $this->sendACK($client_token, $client_message_id);
-                                $this->onReceiveMessage($mdata->data, $mdata->time_to_live, $mdata->from, $client_message_id, $mdata->category, new Actions($this));
                             }
                         }
                     }
@@ -289,7 +294,11 @@ abstract class Core implements FCMListeners
         return $length;
     }
 
-
+    /**
+     * Reads the socket content
+     * @param $socket
+     * @return bool|string
+     */
     protected function read($socket)
     {
         $response  = fread($socket, 1387);
@@ -320,11 +329,10 @@ abstract class Core implements FCMListeners
         if ($packetData == "") {
             Logs::writeLog(Logs::DEBUG, "Keepalive exchange");
             $this->write($this->remote, " ");
-        } elseif (Functions::isInvalidStanza($packetData)) {
-            Logs::writeLog(Logs::DEBUG, "Message doesn't have valid XMPP header and footer.");
         }
 
-        if (Functions::isFooterMissing($packetData)) {
+        // the message is not complete, we wait for the end of it
+        if (Functions::isOnlyFooterIsMissing($packetData)) {
             Logs::writeLog(Logs::DEBUG, "Message is fragmented because footer is missing.");
             $this->parsedMessage = null;
             $this->isParsing     = true;
@@ -332,7 +340,7 @@ abstract class Core implements FCMListeners
             Logs::writeLog(Logs::DEBUG, "Parsing message..");
             $this->parsedMessage .= $packetData;
 
-        } elseif ($this->isParsing) {
+        } elseif ($this->isParsing) { // this is the next part of the previous message
             $this->parsedMessage .= $packetData;
         }
 
@@ -345,7 +353,7 @@ abstract class Core implements FCMListeners
         if (Functions::isXMLStreamError($packetData)) {
             Logs::writeLog(Logs::DEBUG, "Stream Error: Invalid XML.");
             Logs::writeLog(Logs::DEBUG, "FCM Server is failed to parse the XML payload.");
-            // todo throw an error and reopen connection ?
+            // todo throw an error and reopen connection?
             $this->exit();
         }
 
