@@ -31,7 +31,7 @@ class Functions
         }
     }
 
-    public static function isFooterMissing($subject)
+    public static function isOnlyFooterIsMissing($subject)
     {
         if ((static::isHeaderMatch($subject)) && !static::isFooterMatch($subject)) {
             return true;

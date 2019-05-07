@@ -3,6 +3,7 @@
   "description": "Allows XMPP connection with Firebase Cloud Messaging. It can listen upstream messages and send downstream ones.",
   "keywords": ["PHP", "FCM", "XMPP", "Firebase", "Upstream", "Downstream", "Cloud", "Messaging"],
   "license": "MIT",
+  "version": "1.0.1",
   "authors": [
     {
       "name": "Irvan Kurniawan",
