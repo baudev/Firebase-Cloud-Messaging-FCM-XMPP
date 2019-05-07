@@ -186,9 +186,8 @@ abstract class Core implements FCMListeners
             stream_set_timeout($this->getRemote(), 150);
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {
-
                 // we explode the packet after each footer node
-                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, -1, PREG_SPLIT_NO_EMPTY);
+                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, -1);
                 foreach ($packetArray as $packet) {
                     // make sure that the XML received is well formatted
                     $validXML = $this->analyzeData($packet);
