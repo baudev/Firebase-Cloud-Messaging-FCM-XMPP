@@ -44,17 +44,13 @@ class CoreTest extends \PHPUnit\Framework\TestCase
     public function testFragmentedMessageBehavior()
     {
         $method = self::getMethodOfCore('analyzeData');
-        // we mock the write method of Core object to avoid fwrite error
-        $stub = $this->createMock(CoreInstance::class);
-        $stub->method('write')
-            ->willReturn("");
-        $method->invokeArgs($stub, array('<message to="00000000000@fcm.googleapis.com" from="devices@gcm.googleapis.com" type="normal"><gcm xmlns="google:mobile:data">{"data":{"message":"Lorem ipsum dolor sit amet, consectetur adipiscing elit."},"time_to_live":86400,"from":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"'));
+        $method->invokeArgs(self::$obj, array('<message to="00000000000@fcm.googleapis.com" from="devices@gcm.googleapis.com" type="normal"><gcm xmlns="google:mobile:data">{"data":{"message":"Lorem ipsum dolor sit amet, consectetur adipiscing elit."},"time_to_live":86400,"from":"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"'));
         $this->expectOutputRegex('#=== Message is fragmented because footer is missing. === \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4} ===\\n#'); // check the output
         $this->expectOutputRegex('#=== Parsing message.. === \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4} ===\\n#'); // check the output
-        $method->invokeArgs($stub, array(',"message_id":"000001"'));
+        $method->invokeArgs(self::$obj, array(',"message_id":"000001"'));
         $this->expectOutputRegex('#=== Message is fragmented because footer is missing. === \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4} ===\\n#'); // check the output
         $this->expectOutputRegex('#=== Parsing message.. === \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4} ===\\n#'); // check the output
-        $method->invokeArgs($stub, array(',"category":"com.example.myapplication"}</gcm></message>'));
+        $method->invokeArgs(self::$obj, array(',"category":"com.example.myapplication"}</gcm></message>'));
         $this->expectOutputRegex('#=== Message is fragmented because footer is missing. === \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4} ===\\n#'); // check the output
         $this->expectOutputRegex('#=== Parsing message.. === \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4} ===\\n#'); // check the output
         $this->expectOutputRegex('#=== Message parsed succesfully. === \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+\d{4} ===\\n#'); // check the output
