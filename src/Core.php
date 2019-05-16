@@ -20,8 +20,10 @@ abstract class Core implements FCMListeners
      *  ABSTRACT METHODS
      */
 
+    abstract public function onLoop(Actions $actions);
+    
     abstract public function onSend(string $from, string $messageId, Actions $actions);
-
+    
     abstract public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
 
     abstract public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions);
@@ -183,7 +185,7 @@ abstract class Core implements FCMListeners
             Logs::writeLog(Logs::DEBUG, "Streaming FCM Cloud Connection Server...");
 
             // TODO put this timeout in Configuration class
-            stream_set_timeout($this->getRemote(), 150);
+             stream_set_timeout($this->getRemote(), rand(1,5));
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {
                 // we explode the packet after each footer node
@@ -217,7 +219,7 @@ abstract class Core implements FCMListeners
                                         if ($data->error == 'BAD_REGISTRATION' || $data->error == 'DEVICE_UNREGISTERED') {
                                             $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
                                         } else {
-                                            $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
+                                        $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
                                         }
 
                                     }
@@ -242,6 +244,8 @@ abstract class Core implements FCMListeners
                         }
                     }
                 }
+                // Ask if there's anything to send
+                $this->onLoop(new Actions($this));
             }
         }
     }

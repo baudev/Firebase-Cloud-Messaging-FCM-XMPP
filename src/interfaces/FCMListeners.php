@@ -18,6 +18,13 @@ interface FCMListeners
      * @return mixed
      */
     public function onSend(string $from, string $messageId, Actions $actions);
+    
+    /**
+     * When a Loop has completed - hook for sending stuff
+     * @param Actions $actions
+     * @return mixed
+     */
+    public function onLoop(Actions $actions);
 
     /**
      * When a message has been received
