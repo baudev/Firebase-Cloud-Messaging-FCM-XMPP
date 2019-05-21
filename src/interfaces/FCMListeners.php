@@ -43,7 +43,7 @@ interface FCMListeners
     public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions);
 
     /**
-     * When the GCM ID of the recipient has expired
+     * When the FCM ID of the recipient has expired
      * @param string $from
      * @param string $newFCMId
      * @param Actions $actions
