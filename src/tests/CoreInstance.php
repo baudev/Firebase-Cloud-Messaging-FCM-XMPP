@@ -2,6 +2,7 @@
 
 namespace FCMStream\tests;
 
+use FCMStream\Actions;
 use FCMStream\Core;
 
 class CoreInstance extends Core
@@ -10,6 +11,11 @@ class CoreInstance extends Core
     public function onSend(string $from, string $messageId, \FCMStream\Actions $actions)
     {
         // TODO: Implement onSend() method.
+    }
+
+    public function onReceipt(string $from, string $messageId, string $status, string $timestamp, Actions $actions)
+    {
+        // TODO: Implement onReceipt() method.
     }
 
     public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, \FCMStream\Actions $actions)
