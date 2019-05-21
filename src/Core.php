@@ -187,7 +187,11 @@ abstract class Core implements FCMListeners
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {
                 // we explode the packet after each footer node
-                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, -1);
+                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, null); // we keep empty value for Keep alive exchange
+                $nbr = count($packetArray);
+                if($nbr > 1 && $packetArray[$nbr - 1] == null){ // remove last empty value to avoid keep alive exchange after each message
+                    unset($packetArray[$nbr - 1]);
+                }
                 foreach ($packetArray as $packet) {
                     // make sure that the XML received is well formatted
                     $validXML = $this->analyzeData($packet);
