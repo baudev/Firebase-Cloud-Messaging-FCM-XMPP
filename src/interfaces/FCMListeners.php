@@ -18,7 +18,18 @@ interface FCMListeners
      * @return mixed
      */
     public function onSend(string $from, string $messageId, Actions $actions);
-
+    
+    /**
+     * Delivery Notification
+     * @param string $from
+     * @param string $messageId
+     * @param string $status
+     * @param string $timestamp
+     * @param Actions $actions
+     * @return mixed
+     */
+    public function onReceipt(string $from, string $messageId, string $status, string $timestamp, Actions $actions);
+    
     /**
      * When a message has been received
      * @param $data
