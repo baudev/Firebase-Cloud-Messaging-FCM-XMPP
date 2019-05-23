@@ -32,4 +32,9 @@ class CoreInstance extends Core
     {
         // TODO: Implement onExpire() method.
     }
+
+    public function onLoop(Actions $actions)
+    {
+        // TODO: Implement onLoop() method.
+    }
 }

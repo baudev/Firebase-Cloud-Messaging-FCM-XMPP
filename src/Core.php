@@ -45,12 +45,13 @@ abstract class Core implements FCMListeners
      * @param string $apiKey https://firebase.google.com/docs/cloud-messaging/concept-options#apikey
      * @param mixed $debugFile file where will be stored all logs. Ff null, it will go into the PHP output.
      * @param int $debugLevel Level determining how verbose the script must be. 0 any. 1 partially. 2 every.
-     * @param int $retryCounter After how many failed reconnection the script must stop
-     * @param int $sleepSecondsBeforeReconnection How many seconds the script must sleep before reconnection
+     * @param int $retryCounter After how many failed reconnection the script must stop.
+     * @param int $sleepSecondsBeforeReconnection How many seconds the script must sleep before reconnection.
      * @param bool $isDebugMode If the script is in debug mode or not. False by default.
-     * @param int $timeoutConnection Timeout of the connection
+     * @param int $timeoutConnection Timeout of the connection.
+     * @param int $timeoutForKeepAlive Timeout of the stream. After $timeoutForKeepAlive seconds, a KeepAlive exchange will be done.
      */
-    public function __construct(int $senderID, string $apiKey, $debugFile, int $debugLevel = Logs::WARN, int $retryCounter = 10, int $sleepSecondsBeforeReconnection = 10, bool $isDebugMode = Configuration::PROD, int $timeoutConnection = 30)
+    public function __construct(int $senderID, string $apiKey, $debugFile, int $debugLevel = Logs::WARN, int $retryCounter = 10, int $sleepSecondsBeforeReconnection = 10, bool $isDebugMode = Configuration::PROD, int $timeoutConnection = 30, int $timeoutForKeepAlive = 100)
     {
         // set the configuration
         Configuration::setSenderID($senderID);
@@ -61,6 +62,10 @@ abstract class Core implements FCMListeners
         Configuration::setSleepSecondsBeforeReconnection($sleepSecondsBeforeReconnection);
         Configuration::setIsDebugMode($isDebugMode);
         Configuration::setTimeoutConnection($timeoutConnection);
+        Configuration::setIsOnLoopEnabled(false);
+        Configuration::setOnLoopXSeconds(1);
+        Configuration::setOnLoopXMilliseconds(0);
+        Configuration::setKeepAliveSeconds($timeoutForKeepAlive);
 
         // set debug output
         if(!empty(Configuration::getDebugFile())){
@@ -71,7 +76,17 @@ abstract class Core implements FCMListeners
         }
     }
 
-
+    /**
+     * Enables the OnLoop method allowing sending messages each X seconds or milliseconds.
+     * !! Warning !! Enabling this method can increase a lot the usage of your CPU!
+     * @param int $seconds Every $seconds the onLoop method is called. More this value is low, more the CPU usage will increase.
+     * @param int $milliseconds Every $milliseconds the onLoop method is called. More this value is low, more the CPU usage will increase.
+     */
+    public function enableOnLoopMethod(int $seconds = 1, int $milliseconds = 0){
+        Configuration::setIsOnLoopEnabled(true);
+        Configuration::setOnLoopXSeconds($seconds);
+        Configuration::setOnLoopXMilliseconds($milliseconds);
+    }
 
     /**
      * Generate a GUID http://php.net/manual/fr/function.com-create-guid.php
@@ -137,7 +152,7 @@ abstract class Core implements FCMListeners
                                         '<auth mechanism="PLAIN" xmlns="urn:ietf:params:xml:ns:xmpp-sasl">' . base64_encode(chr(0) . Configuration::getSenderID() . '@gcm.googleapis.com' . chr(0) . Configuration::getApiKey()) . '</auth>');
                                 } elseif ($node->localName == 'bind') {
                                     $this->write($this->getRemote(),
-                                        '<iq to="' . Configuration::FCM_HOST . '" type="set" id="' . $unique_guid . "-1" . '"><bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><resource>test</resource></bind></iq>');
+                                        '<iq to="' . Configuration::FCM_HOST . '" type="set" id="' . $unique_guid . "-1" . '"><bind xmlns="urn:ietf:params:xml:ns:xmpp-bind"><resource>TEST</resource></bind></iq>');
                                 } elseif ($node->localName == 'session') {
                                     $this->write($this->getRemote(),
                                         '<iq to="' . Configuration::FCM_HOST . '" type="set" id="' . $unique_guid . "-2" . '"><session xmlns="urn:ietf:params:xml:ns:xmpp-session"/></iq>');
@@ -185,16 +200,21 @@ abstract class Core implements FCMListeners
             // has the connection is established, we put the retry counter to 0
             $this->setRetryCount(0);
             Logs::writeLog(Logs::DEBUG, "Streaming FCM Cloud Connection Server...");
-
-            // TODO put this timeout in Configuration class
-             stream_set_timeout($this->getRemote(), rand(1,5));
+            // according to if the onLoop method is enabled or not, the timeout change
+            $initialTime = time();
+            if(Configuration::getIsOnLoopEnabled()) {
+                stream_set_timeout($this->getRemote(), Configuration::getOnLoopXSeconds(), Configuration::getOnLoopXMilliseconds());
+            } else {
+                stream_set_timeout($this->getRemote(), Configuration::getKeepAliveSeconds());
+            }
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {
                 // we explode the packet after each footer node
-                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, null); // we keep empty value for Keep alive exchange
-                $nbr = count($packetArray);
-                if($nbr > 1 && $packetArray[$nbr - 1] == null){ // remove last empty value to avoid keep alive exchange after each message
-                    unset($packetArray[$nbr - 1]);
+                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, -1, PREG_SPLIT_NO_EMPTY);
+                if(time() - $initialTime >= Configuration::getKeepAliveSeconds()){
+                    // it's a KeepAlive timeout execution
+                    $packetArray[] = "";
+                    $initialTime = time();
                 }
                 foreach ($packetArray as $packet) {
                     // make sure that the XML received is well formatted
@@ -254,8 +274,10 @@ abstract class Core implements FCMListeners
                         }
                     }
                 }
-                // Ask if there's anything to send
-                $this->onLoop(new Actions($this));
+                if(Configuration::getIsOnLoopEnabled()) {
+                    // Ask if there's anything to send
+                    $this->onLoop(new Actions($this));
+                }
             }
         }
     }

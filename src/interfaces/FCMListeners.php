@@ -7,6 +7,7 @@
 namespace FCMStream\interfaces;
 
 use FCMStream\Actions;
+use FCMStream\Core;
 
 interface FCMListeners
 {
@@ -20,7 +21,10 @@ interface FCMListeners
     public function onSend(string $from, string $messageId, Actions $actions);
     
     /**
-     * When a Loop has completed - hook for sending stuff
+     * The method is executed each X seconds or Y milliseconds.
+     * To enable this method, you must execute enableOnLoopMethod(X, Y)
+     * !! Warning !! Enabling this method can increase a lot the usage of your CPU!
+     * @see Core::enableOnLoopMethod()
      * @param Actions $actions
      * @return mixed
      */

@@ -13,7 +13,7 @@ class CoreTest extends \PHPUnit\Framework\TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        self::$obj = new CoreInstance(00000, "test", 'debugfile.txt', \FCMStream\helpers\Logs::DEBUG);
+        self::$obj = new CoreInstance(00000, "TEST", 'debugfile.txt', \FCMStream\helpers\Logs::DEBUG);
     }
 
     protected static function getMethodOfCore($name) {
