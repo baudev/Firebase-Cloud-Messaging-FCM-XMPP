@@ -13,6 +13,7 @@ class Callbacks extends Core
 
     private $onSend;
     private $onLoop;
+    private $onReceipt;
     private $onReceiveMessage;
     private $onFail;
     private $onExpire;
@@ -37,11 +38,9 @@ class Callbacks extends Core
     {
         $this->onSend = $onSend;
     }
- 
+
     /**
      * Call the callback function
-     * @param string $from
-     * @param string $messageId
      * @param Actions $actions
      * @return mixed
      */
@@ -52,11 +51,34 @@ class Callbacks extends Core
 
     /**
      * Set the callback function
-     * @param mixed $onSend
+     * @param $onLoop
      */
     public function setOnLoop($onLoop)
     {
         $this->onLoop = $onLoop;
+    }
+
+    /**
+     * Call the callback function
+     * @param string $from
+     * @param string $messageId
+     * @param string $status
+     * @param int $timestamp
+     * @param Actions $actions
+     * @return mixed
+     */
+    public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions)
+    {
+        return @call_user_func($this->onReceipt, $from, $messageId, $status, $timestamp, $actions);
+    }
+
+    /**
+     * Set the callback function
+     * @param $onReceipt
+     */
+    public function setOnReceipt($onReceipt)
+    {
+        $this->onReceipt = $onReceipt;
     }
 
     /**

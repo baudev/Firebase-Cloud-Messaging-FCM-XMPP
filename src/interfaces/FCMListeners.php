@@ -27,6 +27,19 @@ interface FCMListeners
     public function onLoop(Actions $actions);
 
     /**
+     * When a delivery receipt of a message requesting one has been received
+     * Take care, this method is not supported for messages sent to iOS devices.
+     * @see https://firebase.google.com/docs/cloud-messaging/xmpp-server-ref#delivery_receipt
+     * @param string $from
+     * @param string $messageId
+     * @param string $status
+     * @param int $timestamp
+     * @param Actions $actions
+     * @return mixed
+     */
+    public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions);
+    
+    /**
      * When a message has been received
      * @param $data
      * @param int $timeToLive
@@ -50,7 +63,7 @@ interface FCMListeners
     public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions);
 
     /**
-     * When the GCM ID of the recipient has expired
+     * When the FCM ID of the recipient has expired
      * @param string $from
      * @param string $newFCMId
      * @param Actions $actions

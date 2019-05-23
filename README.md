@@ -10,12 +10,11 @@ This PHP program, based on the unmaintained [sourc7/FCMStream](https://github.co
   
 ## INSTALLATION  
 
-With Packagist:
 ```
 composer require baudev/fcm-xmpp  
 ```
 
-## EXAMPLE  
+## EXAMPLES  
 - Create an `index.php` file and write into it one of the two following script ([method1](#1-using-a-class-best-solution) or [method2](#2-using-function-callback-parameters)). Don't forget replacing :  `SENDER_ID`, `SERVER KEY`.
 - Run the script: `php index.php`
 
@@ -102,9 +101,10 @@ See the [wiki page](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/
 
 ### TODO  
   
-- [ ] Add more comments
+- [X] Add more comments
 - [X] Add methods for responding easily, to set message priority and so on. *Notification property is not handled yet*  
-- [X] Improve README  
+- [X] Improve README
+- [ ] Add more tests  
   
 ### CREDITS  
   

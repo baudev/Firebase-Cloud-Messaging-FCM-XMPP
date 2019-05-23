@@ -24,6 +24,8 @@ abstract class Core implements FCMListeners
     
     abstract public function onSend(string $from, string $messageId, Actions $actions);
     
+    abstract public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions);
+
     abstract public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
 
     abstract public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions);
@@ -189,7 +191,11 @@ abstract class Core implements FCMListeners
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {
                 // we explode the packet after each footer node
-                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, -1);
+                $packetArray = preg_split('/(?<=<\/message>)/', $packetData, null); // we keep empty value for Keep alive exchange
+                $nbr = count($packetArray);
+                if($nbr > 1 && $packetArray[$nbr - 1] == null){ // remove last empty value to avoid keep alive exchange after each message
+                    unset($packetArray[$nbr - 1]);
+                }
                 foreach ($packetArray as $packet) {
                     // make sure that the XML received is well formatted
                     $validXML = $this->analyzeData($packet);
@@ -222,6 +228,10 @@ abstract class Core implements FCMListeners
                                         $this->onFail($data->error, $data->error_description, $data->from, $data->message_id, new Actions($this));
                                         }
 
+                                    } elseif ($data->message_type == 'receipt') {
+                                        // delivery notification if requested
+                                        Logs::writeLog(Logs::DEBUG, "Delivery receipt message #" . $data->data->original_message_id);
+                                        $this->onReceipt($data->data->device_registration_id, $data->data->original_message_id, $data->data->message_status, $data->data->message_sent_timestamp, new Actions($this));
                                     }
                                     if ((Functions::isControlMessage($validXML) && $data->message_type == 'control') && ($data->control_type == 'CONNECTION_DRAINING')) {
                                         // we re open a new connection because FCM as to close the current one

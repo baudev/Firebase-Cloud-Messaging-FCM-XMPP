@@ -7,4 +7,4 @@ cache:
     - vendor
 
 before_install: composer install
-script: phpunit --bootstrap vendor/autoload.php tests/
+script: phpunit --bootstrap vendor/autoload.php src/tests/

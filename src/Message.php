@@ -309,6 +309,14 @@ class Message implements \JsonSerializable
                     $return[strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $key))] = $this->$method();
                 }
             }
+            $method = 'is' . ucwords($key);
+            // if the getter exists
+            if(method_exists($this, $method)){
+                // check the value isn't empty
+                if($this->$method() != null){
+                    $return[strtolower(preg_replace('/(.)([A-Z])/', '$1_$2', $key))] = $this->$method();
+                }
+            }
         }
         return $return;
     }
