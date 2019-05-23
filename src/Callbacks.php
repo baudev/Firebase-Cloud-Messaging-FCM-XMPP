@@ -37,24 +37,24 @@ class Callbacks extends Core
     {
         $this->onSend = $onSend;
     }
- 
-     /**
+
+    /**
      * Call the callback function
      * @param string $from
      * @param string $messageId
      * @param string $status
-     * @param string $timestamp
+     * @param int $timestamp
      * @param Actions $actions
      * @return mixed
      */
-    public function onReceipt(string $from, string $messageId, string $status, string $timestamp, Actions $actions)
+    public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions)
     {
         return @call_user_func($this->onReceipt, $from, $messageId, $status, $timestamp, $actions);
     }
 
     /**
      * Set the callback function
-     * @param mixed $onSend
+     * @param $onReceipt
      */
     public function setOnReceipt($onReceipt)
     {

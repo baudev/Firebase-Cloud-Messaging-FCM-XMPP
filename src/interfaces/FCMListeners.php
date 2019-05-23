@@ -18,17 +18,19 @@ interface FCMListeners
      * @return mixed
      */
     public function onSend(string $from, string $messageId, Actions $actions);
-    
+
     /**
-     * Delivery Notification
+     * When a delivery receipt of a message requesting one has been received
+     * Take care, this method is not supported for messages sent to iOS devices.
+     * @see https://firebase.google.com/docs/cloud-messaging/xmpp-server-ref#delivery_receipt
      * @param string $from
      * @param string $messageId
      * @param string $status
-     * @param string $timestamp
+     * @param int $timestamp
      * @param Actions $actions
      * @return mixed
      */
-    public function onReceipt(string $from, string $messageId, string $status, string $timestamp, Actions $actions);
+    public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions);
     
     /**
      * When a message has been received

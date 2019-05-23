@@ -22,7 +22,7 @@ abstract class Core implements FCMListeners
 
     abstract public function onSend(string $from, string $messageId, Actions $actions);
     
-    abstract public function onReceipt(string $from, string $messageId, string $status, string $timestamp, Actions $actions);
+    abstract public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions);
 
     abstract public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
 
@@ -228,7 +228,7 @@ abstract class Core implements FCMListeners
 
                                     } elseif ($data->message_type == 'receipt') {
                                         // delivery notification if requested
-                                        Logs::writeLog(Logs::DEBUG, "RECEIPT message #" . $data->data->original_message_id);
+                                        Logs::writeLog(Logs::DEBUG, "Delivery receipt message #" . $data->data->original_message_id);
                                         $this->onReceipt($data->data->device_registration_id, $data->data->original_message_id, $data->data->message_status, $data->data->message_sent_timestamp, new Actions($this));
                                     }
                                     if ((Functions::isControlMessage($validXML) && $data->message_type == 'control') && ($data->control_type == 'CONNECTION_DRAINING')) {
