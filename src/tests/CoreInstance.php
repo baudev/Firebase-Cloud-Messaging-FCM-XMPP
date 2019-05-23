@@ -13,7 +13,7 @@ class CoreInstance extends Core
         // TODO: Implement onSend() method.
     }
 
-    public function onReceipt(string $from, string $messageId, string $status, string $timestamp, Actions $actions)
+    public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions)
     {
         // TODO: Implement onReceipt() method.
     }
