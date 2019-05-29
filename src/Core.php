@@ -63,8 +63,7 @@ abstract class Core implements FCMListeners
         Configuration::setIsDebugMode($isDebugMode);
         Configuration::setTimeoutConnection($timeoutConnection);
         Configuration::setIsOnLoopEnabled(false);
-        Configuration::setOnLoopXSeconds(1);
-        Configuration::setOnLoopXMilliseconds(0);
+        Configuration::setOnLoopXMicroseconds(150000 * 1000); // each 150 seconds
         Configuration::setKeepAliveSeconds($timeoutForKeepAlive);
 
         // set debug output
@@ -77,15 +76,13 @@ abstract class Core implements FCMListeners
     }
 
     /**
-     * Enables the OnLoop method allowing sending messages each X seconds or milliseconds.
+     * Enables the OnLoop method allowing sending messages each X microseconds.
      * !! Warning !! Enabling this method can increase a lot the usage of your CPU!
-     * @param int $seconds Every $seconds the onLoop method is called. More this value is low, more the CPU usage will increase.
-     * @param int $milliseconds Every $milliseconds the onLoop method is called. More this value is low, more the CPU usage will increase.
+     * @param int $microseconds Every $microseconds the onLoop method is called. More this value is low, more the CPU usage will increase.
      */
-    public function enableOnLoopMethod(int $seconds = 1, int $milliseconds = 0){
+    public function enableOnLoopMethod(int $microseconds = 10000 * 1000){ // each 10 seconds
         Configuration::setIsOnLoopEnabled(true);
-        Configuration::setOnLoopXSeconds($seconds);
-        Configuration::setOnLoopXMilliseconds($milliseconds);
+        Configuration::setOnLoopXMicroseconds($microseconds);
     }
 
     /**
@@ -203,9 +200,9 @@ abstract class Core implements FCMListeners
             // according to if the onLoop method is enabled or not, the timeout change
             $initialTime = time();
             if(Configuration::getIsOnLoopEnabled()) {
-                stream_set_timeout($this->getRemote(), Configuration::getOnLoopXSeconds(), Configuration::getOnLoopXMilliseconds());
+                stream_set_timeout($this->getRemote(), 0, Configuration::getOnLoopXMicroseconds());
             } else {
-                stream_set_timeout($this->getRemote(), Configuration::getKeepAliveSeconds());
+                stream_set_timeout($this->getRemote(), Configuration::getOnLoopXMicroseconds());
             }
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {

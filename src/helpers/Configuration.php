@@ -18,8 +18,7 @@ class Configuration
     private static $isDebugMode;
     private static $timeoutConnection;
     private static $isOnLoopEnabled;
-    private static $onLoopXSeconds;
-    private static $onLoopXMilliseconds;
+    private static $onLoopXMicroseconds;
     private static $keepAliveSeconds;
 
     /**
@@ -196,33 +195,17 @@ class Configuration
     /**
      * @return mixed
      */
-    public static function getOnLoopXSeconds()
+    public static function getOnLoopXMicroseconds()
     {
-        return self::$onLoopXSeconds;
+        return self::$onLoopXMicroseconds;
     }
 
     /**
-     * @param mixed $onLoopXSeconds
+     * @param mixed $onLoopXMicroseconds
      */
-    public static function setOnLoopXSeconds($onLoopXSeconds): void
+    public static function setOnLoopXMicroseconds($onLoopXMicroseconds): void
     {
-        self::$onLoopXSeconds = $onLoopXSeconds;
-    }
-
-    /**
-     * @return mixed
-     */
-    public static function getOnLoopXMilliseconds()
-    {
-        return self::$onLoopXMilliseconds;
-    }
-
-    /**
-     * @param mixed $onLoopXMilliseconds
-     */
-    public static function setOnLoopXMilliseconds($onLoopXMilliseconds): void
-    {
-        self::$onLoopXMilliseconds = $onLoopXMilliseconds;
+        self::$onLoopXMicroseconds = $onLoopXMicroseconds;
     }
 
     /**

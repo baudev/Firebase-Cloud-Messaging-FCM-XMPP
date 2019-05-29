@@ -7,7 +7,6 @@
 namespace FCMStream\interfaces;
 
 use FCMStream\Actions;
-use FCMStream\Core;
 
 interface FCMListeners
 {
@@ -19,16 +18,6 @@ interface FCMListeners
      * @return mixed
      */
     public function onSend(string $from, string $messageId, Actions $actions);
-    
-    /**
-     * The method is executed each X seconds or Y milliseconds.
-     * To enable this method, you must execute enableOnLoopMethod(X, Y)
-     * !! Warning !! Enabling this method can increase a lot the usage of your CPU!
-     * @see Core::enableOnLoopMethod()
-     * @param Actions $actions
-     * @return mixed
-     */
-    public function onLoop(Actions $actions);
 
     /**
      * When a delivery receipt of a message requesting one has been received
@@ -54,6 +43,15 @@ interface FCMListeners
      * @return mixed
      */
     public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
+
+    /**
+     * The method is executed each X microseconds.
+     * To enable this method, you must execute enableOnLoopMethod()
+     * !! Warning !! Enabling this method can increase a lot the usage of your CPU!
+     * @param Actions $actions
+     * @return mixed
+     */
+    public function onLoop(Actions $actions);
 
     /**
      * When something failed
