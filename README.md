@@ -5,6 +5,7 @@
 |:--:|:--:|:--:
 | CI Status | [![Build Status](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP.svg?branch=master)](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP) | [![Build Status](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP.svg?branch=dev)](https://travis-ci.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP)
 | Version |  [![Master version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/master/composer.json&label=v&query=$.version&color=green)]() | [![Develop version](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/dev/composer.json&label=v&query=$.version&color=orange)]()
+| PHP version | [![PHP MINIMUM VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/master/composer.json&label=PHP&query=$.require.php)]() | [![PHP MINIMUM VERSION](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/master/composer.json&label=PHP&query=$.require.php)]() |
 
 This PHP program, based on the unmaintained [sourc7/FCMStream](https://github.com/sourc7/FCMStream) repository, allows receiving and sending messages with the XMPP Protocol using [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/).  
   
