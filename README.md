@@ -18,7 +18,7 @@ composer require baudev/fcm-xmpp
 - Create an `index.php` file and write into it one of the two following script ([method1](#1-using-a-class-best-solution) or [method2](#2-using-function-callback-parameters)). Don't forget replacing :  `SENDER_ID`, `SERVER KEY`.
 - Run the script: `php index.php`
 
-*Note: examples are provided in the directory `examples`.*
+*Note: examples are provided in the directory `examples`. More explanations can be found into the [wiki page](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki/References).*
 
 ### 1. Using a class (**best solution**):   
 ```php  
@@ -131,7 +131,7 @@ $test->stream();
 
 ## DOCUMENTATION
 
-See the [wiki page](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki/Documentation) to discover every possibilities provided by this framework.
+See the [wiki page](https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki/References) to discover every possibilities provided by this framework.
 
 ### TODO  
   
