@@ -27,6 +27,11 @@ class YOURCLASSNAME extends \FCMStream\Core {
 	public function onSend(string $from, string $messageId, Actions $actions) { 
 		 // TODO: Implement onSend() method. 
 	 }  
+	 
+	public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions)
+         {
+             // TODO: Implement onReceipt() method. 
+         }
  
 	public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions) { 
 		// we answer to the message received 
@@ -38,16 +43,30 @@ class YOURCLASSNAME extends \FCMStream\Core {
 		 
 		$actions->sendMessage($message);
 	}  
+	
+	/**
+	 * The method is executed each X microseconds.
+	 * To enable this method, you must execute enableOnLoopMethod()
+	 * !! Warning !! Enabling this method can increase a lot the usage of your CPU!
+	 * @param Actions $actions
+	 */
+	public function onLoop(Actions $actions)
+	{
+		// TODO: Implement onLoop() method. 
+	}
 
 	public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions) { 
 		// TODO: Implement onFail() method. 
 	}  
-	 public function onExpire(string $from, string $newFCMId, Actions $actions) { 
-		// TODO: Implement onExpire() method. 
-	 }
+	
+	public function onExpire(string $from, string $newFCMId, Actions $actions) { 
+	    // TODO: Implement onExpire() method. 
+	}
 }  
   
-$test = new YOURCLASSNAME('SENDER_ID', 'SERVER KEY', 'debugfile.txt', \FCMStream\helpers\Logs::DEBUG);  
+$test = new YOURCLASSNAME('SENDER_ID', 'SERVER KEY', 'debugfile.txt', \FCMStream\helpers\Logs::DEBUG); 
+// $test->enableOnLoopMethod(5 * 1000 * 1000); // enables the onLoop method. She will be called each 5 seconds. 
+// Before uncommenting the previous line, see https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki/References#enableonloopmethodmicroseconds
 $test->stream();  
 ```
 
@@ -61,6 +80,11 @@ $test->setOnSend(function (string $from, string $messageId, Actions $actions){
 	// TODO: Implement onSend() method.
   });  
   
+// onReceipt callback
+$test->setOnReceipt(function (string $from, string $messageId, string $status, int $timestamp, Actions $actions) {
+	// TODO: Implement onReceipt() method.
+});
+  
 // onReceiveMessage callback  
 $test->setOnReceiveMessage(function ($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions){ 
 	// we answer to the message received 
@@ -72,6 +96,13 @@ $test->setOnReceiveMessage(function ($data, int $timeToLive, string $from, strin
 	
 	$actions->sendMessage($message);  
 });
+
+// onLoop callback
+// To enable this method, you must execute enableOnLoopMethod()
+// !! Warning !! Enabling this method can increase a lot the usage of your CPU!
+$test->setOnLoop(function (Actions $actions) {
+	// TODO: Implement onLoop() method. 
+});
   
 // onFail callback  
 $test->setOnFail(function (?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions) { 
@@ -82,6 +113,9 @@ $test->setOnFail(function (?string $error, ?string $errorDescription, ?string $f
 $test->setOnExpire(function (string $from, string $newFCMId, Actions $actions){  
 	// TODO: Implement onExpire() method. 
   });  
+  
+// $test->enableOnLoopMethod(5 * 1000 * 1000); // enables the onLoop method. She will be called each 5 seconds.
+// Before uncommenting the previous line, see https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki/References#enableonloopmethodmicroseconds
 $test->stream();  
 ```  
   
