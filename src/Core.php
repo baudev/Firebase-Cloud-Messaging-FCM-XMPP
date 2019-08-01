@@ -199,11 +199,8 @@ abstract class Core implements FCMListeners
             Logs::writeLog(Logs::DEBUG, "Streaming FCM Cloud Connection Server...");
             // according to if the onLoop method is enabled or not, the timeout change
             $initialTime = time();
-            if(Configuration::getIsOnLoopEnabled()) {
-                stream_set_timeout($this->getRemote(), 0, Configuration::getOnLoopXMicroseconds());
-            } else {
-                stream_set_timeout($this->getRemote(), Configuration::getOnLoopXMicroseconds());
-            }
+            // set the timeout of the stream
+            $this->setStreamTimeout();
             // we set an infinite loop
             while (($packetData = $this->read($this->getRemote())) !== 1) {
                 // we explode the packet after each footer node
@@ -271,9 +268,11 @@ abstract class Core implements FCMListeners
                         }
                     }
                 }
-                if(Configuration::getIsOnLoopEnabled()) {
+                if(Configuration::getIsOnLoopEnabled() && stream_get_meta_data($this->getRemote())['timed_out']) {
                     // Ask if there's anything to send
                     $this->onLoop(new Actions($this));
+                    // update the timeout meta data
+                    $this->setStreamTimeout();
                 }
             }
         }
@@ -399,6 +398,18 @@ abstract class Core implements FCMListeners
     protected function sendACK($registration_id, $message_id)
     {
         $this->write($this->remote, '<message id=""><gcm xmlns="google:mobile:data">{"to":"' . $registration_id . '","message_id":' . json_encode(htmlspecialchars($message_id, ENT_NOQUOTES), JSON_UNESCAPED_UNICODE) . ',"message_type":"ack"}</gcm></message>');
+    }
+
+    /**
+     * Defines the stream timeout
+     */
+    protected function setStreamTimeout()
+    {
+        if(Configuration::getIsOnLoopEnabled()) {
+            stream_set_timeout($this->getRemote(), 0, Configuration::getOnLoopXMicroseconds());
+        } else {
+            stream_set_timeout($this->getRemote(), Configuration::getOnLoopXMicroseconds());
+        }
     }
 
 
