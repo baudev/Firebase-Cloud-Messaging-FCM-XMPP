@@ -21,7 +21,12 @@ $test = new FCMStream\Callbacks(123456789, 'SERVER KEY', 'debugfile.txt', \FCMSt
 
 // onSend callback
 $test->setOnSend(function (string $from, string $messageId, Actions $actions){
-    echo 'Message has been sent from this Server!';
+    echo 'Message has been sent from this server to Firebase one!';
+});
+
+// onReceipt callback
+$test->setOnReceipt(function (string $from, string $messageId, string $status, int $timestamp, Actions $actions) {
+    echo 'The delivery receipt asked for the message ' . $messageId . ' has been received';
 });
 
 // onReceiveMessage callback
@@ -39,6 +44,13 @@ $test->setOnReceiveMessage(function ($data, int $timeToLive, string $from, strin
     $actions->sendMessage($message); // we send the message
 });
 
+// onLoop callback
+// To enable this method, you must execute enableOnLoopMethod()
+// !! Warning !! Enabling this method can increase a lot the usage of your CPU!
+$test->setOnLoop(function (Actions $actions) {
+    echo 'This line is called each 5 seconds if you uncomment the line 66! You can send messages here for example';
+});
+
 // onFail callback
 $test->setOnFail(function (?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions){
     echo 'An error has occured:';
@@ -51,6 +63,8 @@ $test->setOnExpire(function (string $from, string $newFCMId, Actions $actions){
 });
 
 try {
+    // $test->enableOnLoopMethod(5 * 1000 * 1000); // enables the onLoop method. She will be called each 5 seconds.
+    // Before uncommenting the previous line, see https://github.com/baudev/Firebase-Cloud-Messaging-FCM-XMPP/wiki/References#enableonloopmethodmicroseconds
     $test->stream(); // we start the connection
 } catch (\FCMStream\exceptions\FCMConnectionException $e) {
     echo 'Error while connecting to the FCM server: '.$e->getMessage();

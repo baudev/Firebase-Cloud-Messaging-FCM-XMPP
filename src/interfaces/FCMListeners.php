@@ -15,7 +15,6 @@ interface FCMListeners
      * @param string $from
      * @param string $messageId
      * @param Actions $actions
-     * @return mixed
      */
     public function onSend(string $from, string $messageId, Actions $actions);
 
@@ -28,7 +27,6 @@ interface FCMListeners
      * @param string $status
      * @param int $timestamp
      * @param Actions $actions
-     * @return mixed
      */
     public function onReceipt(string $from, string $messageId, string $status, int $timestamp, Actions $actions);
     
@@ -40,7 +38,6 @@ interface FCMListeners
      * @param string $messageId
      * @param string $packageName
      * @param Actions $actions
-     * @return mixed
      */
     public function onReceiveMessage($data, int $timeToLive, string $from, string $messageId, string $packageName, Actions $actions);
 
@@ -49,7 +46,6 @@ interface FCMListeners
      * To enable this method, you must execute enableOnLoopMethod()
      * !! Warning !! Enabling this method can increase a lot the usage of your CPU!
      * @param Actions $actions
-     * @return mixed
      */
     public function onLoop(Actions $actions);
 
@@ -60,7 +56,6 @@ interface FCMListeners
      * @param null|string $from
      * @param null|string $messageId
      * @param Actions $actions
-     * @return mixed
      */
     public function onFail(?string $error, ?string $errorDescription, ?string $from, ?string $messageId, Actions $actions);
 
@@ -69,7 +64,6 @@ interface FCMListeners
      * @param string $from
      * @param string $newFCMId
      * @param Actions $actions
-     * @return mixed
      */
     public function onExpire(string $from, string $newFCMId, Actions $actions);
 
