@@ -12,6 +12,7 @@ class Callbacks extends Core
     // TODO comment methods
 
     private $onSend;
+    private $onLoop;
     private $onReceipt;
     private $onReceiveMessage;
     private $onFail;
@@ -36,6 +37,25 @@ class Callbacks extends Core
     public function setOnSend($onSend)
     {
         $this->onSend = $onSend;
+    }
+
+    /**
+     * Call the callback function
+     * @param Actions $actions
+     * @return mixed
+     */
+    public function onLoop(Actions $actions)
+    {
+        return @call_user_func($this->onLoop, $actions);
+    }
+
+    /**
+     * Set the callback function
+     * @param $onLoop
+     */
+    public function setOnLoop($onLoop)
+    {
+        $this->onLoop = $onLoop;
     }
 
     /**

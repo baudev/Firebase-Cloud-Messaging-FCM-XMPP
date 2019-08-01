@@ -17,6 +17,9 @@ class Configuration
     private static $sleepSecondsBeforeReconnection;
     private static $isDebugMode;
     private static $timeoutConnection;
+    private static $isOnLoopEnabled;
+    private static $onLoopXMicroseconds;
+    private static $keepAliveSeconds;
 
     /**
      * Environment mode
@@ -171,6 +174,54 @@ class Configuration
     public static function setTimeoutConnection($timeoutConnection): void
     {
         self::$timeoutConnection = $timeoutConnection;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getIsOnLoopEnabled()
+    {
+        return self::$isOnLoopEnabled;
+    }
+
+    /**
+     * @param mixed $isOnLoopEnabled
+     */
+    public static function setIsOnLoopEnabled($isOnLoopEnabled): void
+    {
+        self::$isOnLoopEnabled = $isOnLoopEnabled;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getOnLoopXMicroseconds()
+    {
+        return self::$onLoopXMicroseconds;
+    }
+
+    /**
+     * @param mixed $onLoopXMicroseconds
+     */
+    public static function setOnLoopXMicroseconds($onLoopXMicroseconds): void
+    {
+        self::$onLoopXMicroseconds = $onLoopXMicroseconds;
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getKeepAliveSeconds()
+    {
+        return self::$keepAliveSeconds;
+    }
+
+    /**
+     * @param mixed $keepAliveSeconds
+     */
+    public static function setKeepAliveSeconds($keepAliveSeconds): void
+    {
+        self::$keepAliveSeconds = $keepAliveSeconds;
     }
 
 }
